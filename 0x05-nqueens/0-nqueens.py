@@ -1,52 +1,44 @@
 #!/usr/bin/python3
-"""Solving the N Queens problem"""
+""" N queens """
 import sys
 
 
-args = sys.argv
-
-if len(args) != 2:
+if len(sys.argv) > 2 or len(sys.argv) < 2:
     print("Usage: nqueens N")
     exit(1)
 
-if args[1].isdigit() is False:
+if not sys.argv[1].isdigit():
     print("N must be a number")
     exit(1)
 
-layout = int(args[1])
-if layout < 4:
+if int(sys.argv[1]) < 4:
     print("N must be at least 4")
     exit(1)
 
-
-def check_here(nlist, index, curr_num):
-    for item in nlist:
-        if index == item[1] or\
-                index == item[1] - (curr_num - item[0]) or\
-                index == item[1] + (curr_num - item[0]):
-            return 1
-    return list([curr_num, index])
+n = int(sys.argv[1])
 
 
-def loop_n_find(nlist, curr_num):
-    if (curr_num > layout):
-        return
-
-    if len(nlist) == layout:
-        print(nlist)
-        return
-
-    j = 0
-    while j < layout:
-        val = check_here(nlist, j, curr_num)
-        if type(val) is list:
-            new_nlist = nlist.copy()
-            new_nlist.append(val)
-            loop_n_find(new_nlist, curr_num + 1)
-        j += 1
-    return
+def queens(n, i=0, a=[], b=[], c=[]):
+    """ find possible positions """
+    if i < n:
+        for j in range(n):
+            if j not in a and i + j not in b and i - j not in c:
+                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
+    else:
+        yield a
 
 
-for i in range(layout):
-    arr = [[0, i]]
-    loop_n_find(arr, 1)
+def solve(n):
+    """ solve """
+    k = []
+    i = 0
+    for solution in queens(n, 0):
+        for s in solution:
+            k.append([i, s])
+            i += 1
+        print(k)
+        k = []
+        i = 0
+
+
+solve(n)
