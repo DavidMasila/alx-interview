@@ -1,31 +1,17 @@
 #!/usr/bin/node
+
 const request = require('request');
 
-request('https://swapi-api.hbtn.io/api/films/' + process.argv[2], function (error, response, body) {
-  if (error) {
-    console.log(error);
-  } else {
-    const characters = JSON.parse(body).characters;
-    // for (const character of characters) {
-    //   request(character, function (error, response, body) {
-    //     if (error) {
-    //       console.log(error);
-    //     } else {
-    //       console.log(JSON.parse(body).name);
-    //     }
-    //   });
-    // }
-    printCharacters(characters, 0);
-  }
+request('https://swapi-api.hbtn.io/api/films/' + process.argv[2], function (err, res, body) {
+  if (err) throw err;
+  const actors = JSON.parse(body).characters;
+  exactOrder(actors, 0);
 });
-
-function printCharacters (characters, index) {
-  request(characters[index], function (err, response, body) {
-    if (!err) {
-      console.log(JSON.parse(body).name);
-      if (index + 1 < characters.length) {
-        printCharacters(characters, index + 1);
-      }
-    }
+const exactOrder = (actors, x) => {
+  if (x === actors.length) return;
+  request(actors[x], function (err, res, body) {
+    if (err) throw err;
+    console.log(JSON.parse(body).name);
+    exactOrder(actors, x + 1);
   });
-}
+};
