@@ -4,34 +4,40 @@
 
 import sys
 
-cache = {'200': 0, '301': 0, '400': 0, '401': 0,
-         '403': 0, '404': 0, '405': 0, '500': 0}
+# Initialize variables to hold metrics
 total_size = 0
-counter = 0
+status_counts = {}
 
-try:
-    for line in sys.stdin:
-        line_list = line.split(" ")
-        if len(line_list) > 4:
-            code = line_list[-2]
-            size = int(line_list[-1])
-            if code in cache.keys():
-                cache[code] += 1
-            total_size += size
-            counter += 1
+# Loop over stdin, processing input line by line
+for i, line in enumerate(sys.stdin, 1):
+    try:
+        # Parse input line to extract status code and file size
+        parts = line.split()
+        status_code = int(parts[8])
+        file_size = int(parts[9])
 
-        if counter == 10:
-            counter = 0
-            print('File size: {}'.format(total_size))
-            for key, value in sorted(cache.items()):
-                if value != 0:
-                    print('{}: {}'.format(key, value))
+        # Update total file size
+        total_size += file_size
 
-except Exception as err:
-    pass
+        # Update status code counts
+        if status_code not in status_counts:
+            status_counts[status_code] = 0
+        status_counts[status_code] += 1
 
-finally:
-    print('File size: {}'.format(total_size))
-    for key, value in sorted(cache.items()):
-        if value != 0:
-            print('{}: {}'.format(key, value))
+        # Print metrics every 10 lines or on keyboard interrupt
+        if i % 10 == 0:
+            print("Total file size:", total_size)
+            for status_code in sorted(status_counts.keys()):
+                print(f"{status_code}: {status_counts[status_code]}")
+            print()
+
+    except KeyboardInterrupt:
+        # Print metrics on keyboard interrupt
+        print("Total file size:", total_size)
+        for status_code in sorted(status_counts.keys()):
+            print(f"{status_code}: {status_counts[status_code]}")
+        sys.exit(0)
+
+    except (ValueError, IndexError):
+        # Skip line if format is invalid
+        continue
